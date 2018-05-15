@@ -4,3 +4,4 @@ The repo consists of three AVR projects. Each one runs individually on an ATMEGA
   - ADCInterface is a project implemented several ADC signals handling.
   - StepperInterface is a project drives several stepper motors.
   - UserInterface is a project implemented an LCD screen and a keypad. It tends to interact with users.
+See the details in README files in each project file.

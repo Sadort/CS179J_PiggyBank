@@ -7,8 +7,6 @@
 
 #include <avr/io.h>
 #include <scheduler.h>
-#include <bit.h>
-#include <pwm.h>
 #include <adc.h>
 #include <usart_ATmega1284.h>
 #include <delay.h>

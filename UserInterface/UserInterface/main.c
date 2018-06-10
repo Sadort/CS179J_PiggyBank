@@ -197,6 +197,8 @@ int TickFct_USART(int state)
 		case USART_init:
 			initUSART(0);
 			USART_Flush(0);
+			initUSART(1);
+			USART_Flush(1);
 		break;
 		
 		case USART_receiving:
@@ -223,31 +225,31 @@ int TickFct_USART(int state)
 		break;
 		
 		case USART_sending:
-			if (USART_IsSendReady(0))
+			if (USART_IsSendReady(1))
 			{
 				if (Coin_1_D > 0)
 				{
 					sed_tmp = (0x3F & Coin_1_D) | 0x00;
 					Coin_1_D = 0;
-					USART_Send(sed_tmp, 0);
+					USART_Send(sed_tmp, 1);
 				}
 				else if (Coin_5_D > 0)
 				{
 					sed_tmp = (0x3F & Coin_5_D) | 0x40;
 					Coin_5_D = 0;
-					USART_Send(sed_tmp, 0);
+					USART_Send(sed_tmp, 1);
 				}
 				else if (Coin_10_D > 0)
 				{
 					sed_tmp = (0x3F & Coin_10_D) | 0x80;
 					Coin_10_D = 0;
-					USART_Send(sed_tmp, 0);
+					USART_Send(sed_tmp, 1);
 				}
 				else if (Coin_25_D > 0)
 				{
 					sed_tmp = (0x3F & Coin_25_D) | 0xC0;
 					Coin_25_D = 0;
-					USART_Send(sed_tmp, 0);
+					USART_Send(sed_tmp, 1);
 				}
 			}
 		break;

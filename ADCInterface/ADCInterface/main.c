@@ -10,18 +10,20 @@
 #include <adc.h>
 #include <usart_ATmega1284.h>
 #include <delay.h>
-
-#define THRESHOLD 0xA0
+#define THRESHOLD_1 0x1B8 //170
+#define THRESHOLD_5 0x130 //110
+#define THRESHOLD_10 0x1E0 //1D0
+#define THRESHOLD_25 0x130 //100
 
 //global variables
 unsigned char ADC_1 = 0; 
 unsigned char ADC_5 = 0;
 unsigned char ADC_10 = 0;
 unsigned char ADC_25 = 0;
-unsigned char ADC_temp_1 = 0; //store returned values from ReadADC
-unsigned char ADC_temp_5 = 0;
-unsigned char ADC_temp_10 = 0;
-unsigned char ADC_temp_25 = 0;
+unsigned long ADC_temp_1 = 0; //store returned values from ReadADC
+unsigned long ADC_temp_5 = 0;
+unsigned long ADC_temp_10 = 0;
+unsigned long ADC_temp_25 = 0;
 
 	
 enum USART_States { USART_start, USART_init, USART_wait, USART_sending };
@@ -74,25 +76,25 @@ int TickFct_USART(int state)
 			{
 				if (ADC_1 > 0)
 				{
-					sed_tmp = ADC_1 | 0x00;
+					sed_tmp = 0x01;
 					ADC_1 = 0;
 					USART_Send(sed_tmp, 0);
 				}
 				else if (ADC_5 > 0)
 				{
-					sed_tmp = ADC_5 | 0x10;
+					sed_tmp = 0x11;
 					ADC_5 = 0;
 					USART_Send(sed_tmp, 0);
 				}
 				else if (ADC_10 > 0)
 				{
-					sed_tmp = ADC_10 | 0x20;
+					sed_tmp = 0x21;
 					ADC_10 = 0;
 					USART_Send(sed_tmp, 0);
 				}
 				else if (ADC_25 > 0)
 				{
-					sed_tmp = ADC_25 | 0x30;
+					sed_tmp = 0x31;
 					ADC_25 = 0;
 					USART_Send(sed_tmp, 0);
 				}
@@ -120,20 +122,24 @@ int TickFct_ADC (int state)
 		break;
 		
 		case ADC_check:
-			if (ADC_temp_1 > THRESHOLD)
+			if (ADC_temp_1 > THRESHOLD_1)
 			{
+				PORTC = 0x01;
 				state = ADC_check_1;
 			} 
-			else if (ADC_temp_5 > THRESHOLD)
+			else if (ADC_temp_5 > THRESHOLD_5)
 			{
+				PORTC = 0x02;
 				state = ADC_check_5;
 			}
-			else if (ADC_temp_10 > THRESHOLD)
+			else if (ADC_temp_10 > THRESHOLD_10)
 			{
+				PORTC = 0x04;
 				state = ADC_check_10;
 			}
-			else if (ADC_temp_25 > THRESHOLD)
+			else if (ADC_temp_25 > THRESHOLD_25)
 			{
+				PORTC = 0x08;
 				state = ADC_check_25;
 			}
 			else
@@ -143,49 +149,53 @@ int TickFct_ADC (int state)
 		break;
 		
 		case ADC_check_1:
-			if (ADC_temp_1 > THRESHOLD)
+			if (ADC_temp_1 > THRESHOLD_1)
 			{
 				state = ADC_check_1;
 			}
 			else
 			{
 				ADC_1 = 1;
+				PORTC = 0x00;
 				state = ADC_check;
 			}
 		break;
 		
 		case ADC_check_5:
-			if (ADC_temp_5 > THRESHOLD)
+			if (ADC_temp_5 > THRESHOLD_5)
 			{
 				state = ADC_check_5;
 			}
 			else
 			{
 				ADC_5 = 1;
+				PORTC = 0x00;
 				state = ADC_check;
 			}
 		break;
 		
 		case ADC_check_10:
-			if (ADC_temp_10 > THRESHOLD)
+			if (ADC_temp_10 > THRESHOLD_10)
 			{
 				state = ADC_check_10;
 			}
 			else
 			{
 				ADC_10 = 1;
+				PORTC = 0x00;
 				state = ADC_check;
 			}
 		break;
 		
 		case ADC_check_25:
-			if (ADC_temp_25 > THRESHOLD)
+			if (ADC_temp_25 > THRESHOLD_25)
 			{
 				state = ADC_check_25;
 			}
 			else
 			{
 				ADC_25 = 1;
+				PORTC = 0x00;
 				state = ADC_check;
 			}
 		break;
@@ -234,6 +244,7 @@ int main(void)
 {
      // initialize ports
      DDRA = 0x00; PORTA = 0xFF;
+	 DDRC = 0XFF; PORTC = 0x00;
      
      tasksNum = 2; // declare number of tasks
      task tsks[2]; // initialize the task array
@@ -247,7 +258,7 @@ int main(void)
      tasks[i].TickFct = &TickFct_USART;
      ++i;
      tasks[i].state = ADC_start;
-     tasks[i].period = 20;
+     tasks[i].period = 40;
      tasks[i].elapsedTime = tasks[i].period;
      tasks[i].TickFct = &TickFct_ADC;
      

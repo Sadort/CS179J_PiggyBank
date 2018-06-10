@@ -9,8 +9,7 @@
 #include <scheduler.h>
 #include <usart_ATmega1284.h>
 #include <delay.h>
-
-#define FULL 2048
+#define FULL 1024
 
 //global variables
 unsigned char Stepper_1 = 0;
